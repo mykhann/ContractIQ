@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Analyze from './components/Analyze';
 import History from './components/History';
+import LandingPage from './components/LandingPage';
 import { getReport } from './api/api';
 import './App.css';
 
 const App = () => {
+  const [isInApp, setIsInApp] = useState(false); // Track if user is in the app
   const [tab, setTab] = useState('analyze');
   const [isOnline, setIsOnline] = useState(false);
 
@@ -23,20 +25,27 @@ const App = () => {
     }
   };
 
+  const handleEnterApp = () => {
+    setIsInApp(true);
+  };
+
   const handleViewReport = async (scanId) => {
     try {
       const data = await getReport(scanId);
       if (data.report) {
-        // Store report in localStorage or state to display
-        // For simplicity, we'll alert and switch to analyze tab
         alert(`Report for ${data.report.contract_name} - Score: ${data.report.overall_risk_score}/10`);
-        // In a real app, you'd want to open a modal or navigate to report view
       }
     } catch (err) {
       alert('Could not load report: ' + err.message);
     }
   };
 
+  // Show Landing Page if not in app
+  if (!isInApp) {
+    return <LandingPage onEnterApp={handleEnterApp} />;
+  }
+
+  // Show Main App
   return (
     <div className="app">
       <header className="topbar">
@@ -51,10 +60,16 @@ const App = () => {
       </header>
 
       <nav className="nav-tabs">
-        <button className={`nav-tab ${tab === 'analyze' ? 'active' : ''}`} onClick={() => setTab('analyze')}>
+        <button 
+          className={`nav-tab ${tab === 'analyze' ? 'active' : ''}`} 
+          onClick={() => setTab('analyze')}
+        >
           ⚡ Analyze
         </button>
-        <button className={`nav-tab ${tab === 'history' ? 'active' : ''}`} onClick={() => setTab('history')}>
+        <button 
+          className={`nav-tab ${tab === 'history' ? 'active' : ''}`} 
+          onClick={() => setTab('history')}
+        >
           📋 History
         </button>
       </nav>

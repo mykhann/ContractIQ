@@ -12,13 +12,11 @@ const LandingPage = ({ onEnterApp }) => {
       <header className="landing-navbar">
         <div className="landing-logo">
           <div className="logo-pulse"></div>
-          <span>ContractGuard</span>
+          <span>ContractIQ</span>
           <span className="tech-badge">AI v1.0</span>
         </div>
         <div className="nav-links">
-          <a href="#features">Features</a>
-          <a href="#architecture">Architecture</a>
-          <a href="#endpoints">API Specs</a>
+       
           <button className="btn-secondary" onClick={onEnterApp}>
             Launch App ⚡
           </button>
@@ -42,9 +40,7 @@ const LandingPage = ({ onEnterApp }) => {
             <button className="btn-primary" onClick={onEnterApp}>
               Try Live Scanner
             </button>
-            <a href="#architecture" className="btn-outline">
-              View n8n Pipeline
-            </a>
+           
           </div>
         </div>
 
