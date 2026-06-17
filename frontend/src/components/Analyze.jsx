@@ -5,7 +5,7 @@ import { checkHealth } from '../api/api';
 import Report from './Report';
 import './styles.css';
 
-const Analyze = () => {
+const Analyze = ({ onBackToHome }) => {
   const [file, setFile] = useState(null);
   const [text, setText] = useState('');
   const [contractName, setContractName] = useState('');
@@ -84,6 +84,14 @@ const Analyze = () => {
   return (
     <div className="analyze-container">
       <div className="page-inner">
+        {/* Back Button */}
+        <button className="btn-back-home" onClick={onBackToHome}>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 8H1M1 8L8 15M1 8L8 1"/>
+          </svg>
+          Back to Home
+        </button>
+
         {/* Header with API status (matches HTML) */}
         <div className="topbar-inline">
           <div className="logo-inline">

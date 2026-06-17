@@ -6,7 +6,7 @@ import { getReport } from './api/api';
 import './App.css';
 
 const App = () => {
-  const [isInApp, setIsInApp] = useState(false); // Track if user is in the app
+  const [isInApp, setIsInApp] = useState(false);
   const [tab, setTab] = useState('analyze');
   const [isOnline, setIsOnline] = useState(false);
 
@@ -29,6 +29,10 @@ const App = () => {
     setIsInApp(true);
   };
 
+  const handleBackToHome = () => {
+    setIsInApp(false);
+  };
+
   const handleViewReport = async (scanId) => {
     try {
       const data = await getReport(scanId);
@@ -40,18 +44,21 @@ const App = () => {
     }
   };
 
-  // Show Landing Page if not in app
   if (!isInApp) {
     return <LandingPage onEnterApp={handleEnterApp} />;
   }
 
-  // Show Main App
   return (
     <div className="app">
       <header className="topbar">
-        <div className="logo">
-          <div className="logo-dot"></div>
-          ContractGuard
+        <div className="topbar-left">
+          <button className="btn-back-home-header" onClick={handleBackToHome}>
+            ←
+          </button>
+          <div className="logo">
+            <div className="logo-dot"></div>
+            ContractGuard
+          </div>
         </div>
         <div className="status">
           <span className={`status-dot ${isOnline ? 'online' : ''}`}></span>
@@ -76,7 +83,7 @@ const App = () => {
 
       <main className="main-content">
         {tab === 'analyze' ? (
-          <Analyze />
+          <Analyze onBackToHome={handleBackToHome} />
         ) : (
           <History onViewReport={handleViewReport} />
         )}
