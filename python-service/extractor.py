@@ -9,6 +9,7 @@ the overlap) are removed by fingerprinting the first 120 characters.
 import os
 import logging
 from typing import List
+import time
 
 from groq_client import chat, parse_json
 from models import ExtractedClause, ClauseType

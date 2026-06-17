@@ -1,6 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useAnalysis } from '../hooks/useAnalysis';
+import { checkHealth } from '../api/api';
 import Report from './Report';
 import './styles.css';
 
@@ -9,8 +10,28 @@ const Analyze = () => {
   const [text, setText] = useState('');
   const [contractName, setContractName] = useState('');
   const [perspective, setPerspective] = useState('reviewing party');
+  const [useN8N, setUseN8N] = useState(true);
+  const [apiUrl, setApiUrl] = useState('https://skimmer-ardently-sequel.ngrok-free.dev');
+  const [n8nUrl, setN8nUrl] = useState('https://mykhann.app.n8n.cloud/webhook-test/analyze-contract');
+  const [isOnline, setIsOnline] = useState(false);
   
   const { loading, error, step, report, gdocUrl, analyze, reset } = useAnalysis();
+
+  // Health check (matches HTML version)
+  useEffect(() => {
+    checkHealthStatus();
+    const interval = setInterval(checkHealthStatus, 15000);
+    return () => clearInterval(interval);
+  }, [apiUrl]);
+
+  const checkHealthStatus = async () => {
+    try {
+      const status = await checkHealth();
+      setIsOnline(status);
+    } catch {
+      setIsOnline(false);
+    }
+  };
 
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles.length > 0) {
@@ -22,7 +43,11 @@ const Analyze = () => {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: { 'application/pdf': ['.pdf'], 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'], 'text/plain': ['.txt'] },
+    accept: { 
+      'application/pdf': ['.pdf'], 
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'], 
+      'text/plain': ['.txt'] 
+    },
     maxSize: 10485760,
     multiple: false,
   });
@@ -30,7 +55,7 @@ const Analyze = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!file && text.trim().length < 50) {
-      alert('Please upload a file or paste at least 50 characters.');
+      alert('Upload a file or paste at least 50 characters of contract text.');
       return;
     }
 
@@ -41,7 +66,11 @@ const Analyze = () => {
       party_perspective: perspective,
     };
 
-    await analyze(formData);
+    // Pass the URLs and n8n flag to the hook
+    await analyze(formData, { 
+      useN8N: useN8N && n8nUrl.length > 0,
+      n8nUrl: n8nUrl
+    });
   };
 
   const clearFile = () => {
@@ -55,9 +84,44 @@ const Analyze = () => {
   return (
     <div className="analyze-container">
       <div className="page-inner">
+        {/* Header with API status (matches HTML) */}
+        <div className="topbar-inline">
+          <div className="logo-inline">
+            <div className="logo-dot"></div>
+            ContractGuard
+          </div>
+          <div className="topbar-right-inline">
+            <div className="url-group">
+              <span className="url-label">API</span>
+              <input 
+                className="api-input" 
+                value={apiUrl} 
+                onChange={(e) => setApiUrl(e.target.value)}
+                placeholder="FastAPI URL"
+              />
+              <div className={`status-dot ${isOnline ? 'online' : ''}`} title="Backend status"></div>
+            </div>
+            <div className="url-group">
+              <span className="url-label">n8n</span>
+              <input 
+                className="api-input" 
+                value={n8nUrl} 
+                onChange={(e) => setN8nUrl(e.target.value)}
+                placeholder="https://your.n8n.cloud/webhook/analyze-contract"
+              />
+            </div>
+          </div>
+        </div>
+
         <div className="hero">
           <h1>Know what you're <span>signing</span> before you sign</h1>
           <p>Upload any contract — get clause-level risk scores, red flags, and negotiation tactics in under a minute.</p>
+        </div>
+
+        {/* Route badge (matches HTML) */}
+        <div className={`route-badge ${useN8N && n8nUrl ? 'via-n8n' : ''}`}>
+          {useN8N && n8nUrl ? '🔄 Routing via n8n' : '⚡ Direct API'}
+          {!useN8N && ' (no n8n)'}
         </div>
 
         {error && (

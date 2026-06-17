@@ -17,7 +17,7 @@ from models import ExtractedClause, ScoredClause, RiskLevel
 logger = logging.getLogger(__name__)
 
 # Rate limit friendly settings
-BATCH_SIZE = int(os.environ.get("SCORING_BATCH_SIZE", 3))  # Balanced for speed
+BATCH_SIZE = int(os.environ.get("SCORING_BATCH_SIZE", 3))  
 MAX_RETRIES = int(os.environ.get("MAX_RETRIES", 5))
 
 SYSTEM = """You are a senior commercial lawyer specialising in contract risk assessment.
@@ -226,7 +226,7 @@ def score_all_clauses(
         scored = score_batch(batch, party_perspective, i + 1, total_batches)
         all_scored.extend(scored)
         
-        # NO DELAY BETWEEN BATCHES - removed completely
+
 
     all_scored.sort(key=lambda c: c.risk_score, reverse=True)
 
