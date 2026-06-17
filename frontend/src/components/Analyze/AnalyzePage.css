@@ -1,0 +1,44 @@
+.analyze-page {
+  width: 100%;
+}
+
+.page-inner {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0 12px 12px 12px;
+  box-shadow: var(--shadow);
+  padding: 36px 40px;
+  margin-top: 0;
+}
+
+.upload-hero {
+  text-align: center;
+  padding: 24px 0 36px;
+}
+
+.upload-hero h1 {
+  font-family: var(--display);
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+
+.upload-hero h1 span {
+  color: var(--accent);
+}
+
+.upload-hero p {
+  font-size: 15px;
+  color: var(--ink-mid);
+  font-weight: 300;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+@media (max-width: 700px) {
+  .page-inner {
+    padding: 20px 18px;
+  }
+}
