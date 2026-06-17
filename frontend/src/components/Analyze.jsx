@@ -92,34 +92,7 @@ const Analyze = ({ onBackToHome }) => {
           Back to Home
         </button>
 
-        {/* Header with API status (matches HTML) */}
-        <div className="topbar-inline">
-          <div className="logo-inline">
-            <div className="logo-dot"></div>
-            ContractGuard
-          </div>
-          <div className="topbar-right-inline">
-            <div className="url-group">
-              <span className="url-label">API</span>
-              <input 
-                className="api-input" 
-                value={apiUrl} 
-                onChange={(e) => setApiUrl(e.target.value)}
-                placeholder="FastAPI URL"
-              />
-              <div className={`status-dot ${isOnline ? 'online' : ''}`} title="Backend status"></div>
-            </div>
-            <div className="url-group">
-              <span className="url-label">n8n</span>
-              <input 
-                className="api-input" 
-                value={n8nUrl} 
-                onChange={(e) => setN8nUrl(e.target.value)}
-                placeholder="https://your.n8n.cloud/webhook/analyze-contract"
-              />
-            </div>
-          </div>
-        </div>
+    
 
         <div className="hero">
           <h1>Know what you're <span>signing</span> before you sign</h1>

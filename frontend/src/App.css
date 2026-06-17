@@ -1,95 +1,153 @@
-.app {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+/* 1. DEFINE THE COLOR PALETTE (The "Legal-Tech" Theme) */
+:root {
+  --bg-black: #0a0a0c;
+  --card: #111114;
+  --border: rgba(255, 255, 255, 0.08);
+  --accent: #deff9a;        /* The signature lime-green */
+  --ink: #f5f5f5;
+  --ink-dim: #a0a0ab;
+  --low: #10b981;          /* Online status green */
 }
 
-/* Topbar */
+/* 2. GLOBAL RESET - Kill the white background everywhere */
+html, 
+body, 
+#root, 
+.app {
+  background-color: var(--bg-black) !important;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  width: 100%;
+  color: var(--ink);
+  font-family: 'Inter', -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 3. THE TOPBAR (Sticky & Dark) */
 .topbar {
-  background: var(--card);
+  background: var(--bg-black);
   border-bottom: 1px solid var(--border);
   padding: 0 28px;
-  height: 58px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: sticky;
   top: 0;
-  z-index: 200;
+  z-index: 1000;
 }
+
 .logo {
   font-weight: 800;
-  font-size: 17px;
+  font-size: 18px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  color: var(--ink);
+  cursor: pointer;
 }
+
 .logo-dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
 }
+
 .status {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--ink-dim);
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
 }
-.status-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #d1d5db;
-}
-.status-dot.online { background: var(--low); }
-.status-label { font-size: 11px; }
 
-/* Nav tabs */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3f3f46; /* Offline color */
+}
+
+.status-dot.online { 
+  background: var(--low); 
+  box-shadow: 0 0 8px var(--low);
+}
+
+.status-label { 
+  font-size: 11px; 
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* 4. NAVIGATION TABS (Dark Glass Style) */
 .nav-tabs {
+  background: var(--bg-black);
   display: flex;
-  gap: 2px;
+  gap: 8px;
   padding: 20px 28px 0;
-  max-width: 1160px;
+  max-width: 1200px;
   margin: 0 auto;
   width: 100%;
+  border-bottom: 1px solid var(--border);
 }
+
 .nav-tab {
-  padding: 9px 18px;
+  padding: 12px 24px;
   border: none;
   background: none;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--ink-dim);
   cursor: pointer;
-  border-radius: 8px 8px 0 0;
-  border: 1px solid transparent;
-  border-bottom: none;
   position: relative;
-  bottom: -1px;
-  transition: all .15s;
+  transition: all 0.2s ease;
 }
-.nav-tab.active {
-  background: var(--card);
-  border-color: var(--border);
-  color: var(--accent);
-  font-weight: 600;
-}
-.nav-tab:hover:not(.active) { color: var(--ink); }
 
-/* Main content */
+.nav-tab:hover {
+  color: var(--ink);
+}
+
+.nav-tab.active {
+  color: var(--accent);
+}
+
+/* The Animated underline for active tab */
+.nav-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+
+/* 5. MAIN CONTENT AREA */
 .main-content {
   flex: 1;
-  max-width: 1160px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 28px 60px;
+  padding: 40px 28px;
   width: 100%;
+  background: transparent;
 }
 
+/* 6. RESPONSIVE FIXES */
 @media (max-width: 700px) {
-  .topbar { padding: 0 16px; height: auto; flex-wrap: wrap; gap: 8px; padding: 10px 16px; }
-  .nav-tabs { padding: 16px 14px 0; }
-  .main-content { padding: 0 14px 40px; }
-  .nav-tab { padding: 8px 14px; font-size: 12px; }
+  .topbar { padding: 0 16px; }
+  .nav-tabs { padding: 10px 16px 0; overflow-x: auto; }
+  .main-content { padding: 20px 16px; }
+  .nav-tab { padding: 10px 14px; font-size: 12px; }
+}
+
+/* Extra Reset: Sometimes index.css or App.css from templates has these */
+header, nav, main, section {
+  background-color: transparent;
 }

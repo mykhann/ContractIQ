@@ -25,13 +25,8 @@ const App = () => {
     }
   };
 
-  const handleEnterApp = () => {
-    setIsInApp(true);
-  };
-
-  const handleBackToHome = () => {
-    setIsInApp(false);
-  };
+  const handleEnterApp = () => setIsInApp(true);
+  const handleBackToHome = () => setIsInApp(false);
 
   const handleViewReport = async (scanId) => {
     try {
@@ -49,43 +44,12 @@ const App = () => {
   }
 
   return (
-    <div className="app">
-      <header className="topbar">
-        <div className="topbar-left">
-          <button className="btn-back-home-header" onClick={handleBackToHome}>
-            ←
-          </button>
-          <div className="logo">
-            <div className="logo-dot"></div>
-            ContractGuard
-          </div>
-        </div>
-        <div className="status">
-          <span className={`status-dot ${isOnline ? 'online' : ''}`}></span>
-          <span className="status-label">{isOnline ? 'Online' : 'Offline'}</span>
-        </div>
-      </header>
-
-      <nav className="nav-tabs">
-        <button 
-          className={`nav-tab ${tab === 'analyze' ? 'active' : ''}`} 
-          onClick={() => setTab('analyze')}
-        >
-          ⚡ Analyze
-        </button>
-        <button 
-          className={`nav-tab ${tab === 'history' ? 'active' : ''}`} 
-          onClick={() => setTab('history')}
-        >
-          📋 History
-        </button>
-      </nav>
-
-      <main className="main-content">
+    <div className="app-headless">
+      <main className="main-content-full">
         {tab === 'analyze' ? (
           <Analyze onBackToHome={handleBackToHome} />
         ) : (
-          <History onViewReport={handleViewReport} />
+          <History onViewReport={handleViewReport} onBackToHome={handleBackToHome} />
         )}
       </main>
     </div>
