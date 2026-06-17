@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://contractiqbackend.onrender.com'
-const N8N_URL = import.meta.env.VITE_N8N_URL || 'https://mykhann.app.n8n.cloud/webhook-test/analyze-contract'
+const API_BASE_URL = import.meta.env.VITE_API_URL 
+const N8N_URL = import.meta.env.VITE_N8N_URL 
 
 const api = axios.create({
   baseURL: API_BASE_URL,
