@@ -19,7 +19,7 @@ export const useAnalysis = () => {
       let result;
 
       if (useN8N && n8nUrl) {
-        // ── Route through n8n (matches HTML version) ──────────────────────
+      
         setStep(2);
         setStep(3);
         
@@ -30,7 +30,7 @@ export const useAnalysis = () => {
           const fileBase64 = await new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => {
-              // Remove data URL prefix to get just base64
+          
               const base64 = reader.result.split(',')[1];
               resolve(base64);
             };
@@ -76,12 +76,12 @@ export const useAnalysis = () => {
           const reportData = await getReport(n8nResult.scan_id);
           result = { success: true, scan_id: n8nResult.scan_id, report: reportData.report };
         } else {
-          // n8n returned full result directly
+         
           result = n8nResult;
         }
 
       } else {
-        // ── Route directly to FastAPI (matches HTML) ──────────────────────
+      
         setStep(2);
         setStep(3);
 

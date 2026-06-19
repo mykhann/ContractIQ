@@ -96,7 +96,7 @@ const Analyze = ({ onBackToHome }) => {
 
         <div className="hero">
           <h1>Know what you're <span>signing</span> before you sign</h1>
-          <p>Upload any contract — get clause-level risk scores, red flags, and negotiation tactics in under a minute.</p>
+          <p>Upload any contract and get clause-level risk scores, red flags, and negotiation tactics in under a minute.</p>
         </div>
 
         {/* Route badge (matches HTML) */}
