@@ -11,18 +11,18 @@ const Analyze = ({ onBackToHome }) => {
   const [contractName, setContractName] = useState('');
   const [perspective, setPerspective] = useState('reviewing party');
   const [useN8N, setUseN8N] = useState(true);
+  const [apiUrl, setApiUrl] = useState('https://skimmer-ardently-sequel.ngrok-free.dev');
+  const [n8nUrl, setN8nUrl] = useState('https://mykhann.app.n8n.cloud/webhook-test/analyze-contract');
   const [isOnline, setIsOnline] = useState(false);
-
+  
   const { loading, error, step, report, gdocUrl, analyze, reset } = useAnalysis();
 
-  const API_URL = import.meta.env.VITE_API_URL;
-  const N8N_WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL;
-
+  // Health check (matches HTML version)
   useEffect(() => {
     checkHealthStatus();
     const interval = setInterval(checkHealthStatus, 15000);
     return () => clearInterval(interval);
-  }, [API_URL]);
+  }, [apiUrl]);
 
   const checkHealthStatus = async () => {
     try {
@@ -43,10 +43,10 @@ const Analyze = ({ onBackToHome }) => {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: {
-      'application/pdf': ['.pdf'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
-      'text/plain': ['.txt']
+    accept: { 
+      'application/pdf': ['.pdf'], 
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'], 
+      'text/plain': ['.txt'] 
     },
     maxSize: 10485760,
     multiple: false,
@@ -54,26 +54,28 @@ const Analyze = ({ onBackToHome }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!file && text.trim().length < 50) {
       alert('Upload a file or paste at least 50 characters of contract text.');
       return;
     }
 
     const formData = {
-      file,
+      file: file,
       text: text.trim(),
       contract_name: contractName.trim() || 'Unnamed Contract',
       party_perspective: perspective,
     };
 
-    await analyze(formData, {
-      useN8N,
-      n8nUrl: N8N_WEBHOOK_URL,
+    // Pass the URLs and n8n flag to the hook
+    await analyze(formData, { 
+      useN8N: useN8N && n8nUrl.length > 0,
+      n8nUrl: n8nUrl
     });
   };
 
-  const clearFile = () => setFile(null);
+  const clearFile = () => {
+    setFile(null);
+  };
 
   if (report) {
     return <Report report={report} onReset={reset} gdocUrl={gdocUrl} />;
@@ -82,31 +84,55 @@ const Analyze = ({ onBackToHome }) => {
   return (
     <div className="analyze-container">
       <div className="page-inner">
-
         {/* Back Button */}
         <button className="btn-back-home" onClick={onBackToHome}>
-          ← Back to Home
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 8H1M1 8L8 15M1 8L8 1"/>
+          </svg>
+          Back to Home
         </button>
+
+    
 
         <div className="hero">
           <h1>Know what you're <span>signing</span> before you sign</h1>
           <p>Upload any contract — get clause-level risk scores, red flags, and negotiation tactics in under a minute.</p>
         </div>
 
-        <div className={`route-badge ${useN8N ? 'via-n8n' : ''}`}>
-          {useN8N ? '🔄 Routing via n8n' : '⚡ Direct API'}
+        {/* Route badge (matches HTML) */}
+        <div className={`route-badge ${useN8N && n8nUrl ? 'via-n8n' : ''}`}>
+          {useN8N && n8nUrl ? '🔄 Routing via n8n' : '⚡ Direct API'}
+          {!useN8N && ' (no n8n)'}
         </div>
 
         {error && (
           <div className="error-box">
             <strong>⚠️ Analysis failed</strong>
             <span>{error}</span>
+            <button className="error-close" onClick={() => window.location.reload()}>✕</button>
+          </div>
+        )}
+
+        {gdocUrl && (
+          <div className="gdoc-banner">
+            📄 Full report saved to Google Docs — <a href={gdocUrl} target="_blank" rel="noopener noreferrer">open document</a>
           </div>
         )}
 
         {step > 0 && (
           <div className="progress-panel">
             <div className="progress-title">Analyzing your contract…</div>
+            <div className="steps">
+              {['Parsing document', 'Extracting clauses', 'Scoring risk', 'Building report'].map((label, i) => (
+                <div key={i} className={`step ${i + 1 < step ? 'done' : i + 1 === step ? 'active' : ''}`}>
+                  <div className="step-dot">{i + 1}</div>
+                  <div>
+                    <div className="step-label">{label}</div>
+                    <div className="step-sub">{['Extracting text and structure', 'Identifying legally significant language', 'Evaluating each clause for exposure', 'Assembling recommendations and red flags'][i]}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
@@ -115,41 +141,62 @@ const Analyze = ({ onBackToHome }) => {
             <input {...getInputProps()} />
             <div className="drop-icon">📄</div>
             <h3>Drop your contract here</h3>
+            <p>PDF, DOCX, or TXT · up to 10 MB</p>
           </div>
 
           {file && (
             <div className="file-chip">
-              📎 {file.name}
-              <span onClick={clearFile}>✕</span>
+              <span>📎</span>
+              <span>{file.name} ({(file.size / 1024).toFixed(1)} KB)</span>
+              <span className="file-chip-remove" onClick={clearFile}>✕</span>
             </div>
           )}
 
-          <textarea
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder="Paste contract text..."
-          />
+          <div className="divider">or paste contract text</div>
 
-          <input
-            value={contractName}
-            onChange={(e) => setContractName(e.target.value)}
-            placeholder="Contract name"
-          />
+          <div className="form-group">
+            <label className="form-label">Contract text</label>
+            <textarea
+              className="form-textarea"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="Paste the full contract text here…"
+              disabled={loading}
+            />
+          </div>
 
-          <select
-            value={perspective}
-            onChange={(e) => setPerspective(e.target.value)}
-          >
-            <option value="reviewing party">Reviewing Party</option>
-            <option value="client">Client</option>
-            <option value="vendor">Vendor</option>
-          </select>
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">Contract name</label>
+              <input
+                className="form-input"
+                value={contractName}
+                onChange={(e) => setContractName(e.target.value)}
+                placeholder="e.g. SaaS Service Agreement"
+                disabled={loading}
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Your role</label>
+              <select className="form-select" value={perspective} onChange={(e) => setPerspective(e.target.value)} disabled={loading}>
+                <option value="reviewing party">Reviewing Party</option>
+                <option value="client">Client</option>
+                <option value="vendor">Vendor / Service Provider</option>
+                <option value="employee">Employee</option>
+                <option value="employer">Employer</option>
+                <option value="landlord">Landlord</option>
+                <option value="tenant">Tenant</option>
+                <option value="investor">Investor</option>
+                <option value="startup founder">Startup Founder</option>
+              </select>
+            </div>
+          </div>
 
-          <button type="submit" disabled={loading}>
-            {loading ? 'Analyzing...' : 'Analyze Contract'}
+          <button type="submit" className="btn-primary" disabled={loading}>
+            <div className={`spinner ${loading ? 'active' : ''}`}></div>
+            <span>{loading ? 'Analyzing…' : '⚡ Analyze Contract'}</span>
           </button>
         </form>
-
       </div>
     </div>
   );
