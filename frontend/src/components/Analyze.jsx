@@ -12,7 +12,7 @@ const Analyze = ({ onBackToHome }) => {
   const [perspective, setPerspective] = useState('reviewing party');
   const [useN8N, setUseN8N] = useState(true);
   const [apiUrl, setApiUrl] = useState('https://skimmer-ardently-sequel.ngrok-free.dev');
-  const [n8nUrl, setN8nUrl] = useState('https://mykhann.app.n8n.cloud/webhook/analyze-contract');
+  const [n8nUrl, setN8nUrl] = useState('https://khalidmansoor.app.n8n.cloud/webhook/analyze-contract');
   const [isOnline, setIsOnline] = useState(false);
   
   const { loading, error, step, report, gdocUrl, analyze, reset } = useAnalysis();
