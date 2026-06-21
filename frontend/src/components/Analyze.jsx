@@ -17,14 +17,14 @@ const Analyze = ({ onBackToHome }) => {
   
   const { loading, error, step, report, gdocUrl, analyze, reset } = useAnalysis();
 
-  // Health check
+  // Health check polling
   useEffect(() => {
     checkHealthStatus();
     const interval = setInterval(checkHealthStatus, 15000);
     return () => clearInterval(interval);
   }, [apiUrl]);
 
-  // Smooth scroll to top when an error occurs
+  // Smooth scroll to top whenever an error is triggered
   useEffect(() => {
     if (error) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -91,7 +91,7 @@ const Analyze = ({ onBackToHome }) => {
   return (
     <div className="analyze-container">
       <div className="page-inner">
-        {/* Back Button */}
+        {/* Back Button - Hidden during active loading for cleaner immersion */}
         {!loading && (
           <button className="btn-back-home" onClick={onBackToHome}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -101,7 +101,7 @@ const Analyze = ({ onBackToHome }) => {
           </button>
         )}
 
-        {/* Error Display */}
+        {/* Dynamic Error Box with Top Anchoring */}
         {error && (
           <div className="error-box">
             <strong>⚠️ Analysis failed</strong>
@@ -110,7 +110,7 @@ const Analyze = ({ onBackToHome }) => {
           </div>
         )}
 
-        {/* Immersive Loading Screen Alternative */}
+        {/* Modern Immersive Loading Screen View */}
         {loading ? (
           <div className="loading-screen-container">
             <div className="loading-pulse-glow"></div>
@@ -121,22 +121,23 @@ const Analyze = ({ onBackToHome }) => {
               </h2>
               <p>
                 {step === 0 
-                  ? 'Securely transmitting data payload. Please do not close this window.' 
-                  : 'Running risk engine assertions against compliance models.'
+                  ? 'Securely transmitting encrypted payload. Please do not close this window.' 
+                  : 'Running systemic risk calculations against compliance models.'
                 }
               </p>
             </div>
 
             <div className="progress-panel embedded">
               <div className="progress-title">
-                {step === 0 ? 'Status: Preparing Pipeline' : `Status: Step ${step} of 4`}
+                {step === 0 ? 'Status: Preparing Pipeline' : `Status: Processing Step ${step} of 4`}
               </div>
-              <div className="steps">
+              <div className="steps-staggered">
                 {['Parsing document', 'Extracting clauses', 'Scoring risk', 'Building report'].map((label, i) => {
                   const currentStepIdx = i + 1;
                   let stepClass = '';
+                  
                   if (step === 0 && i === 0) {
-                    stepClass = 'active continuous-pulse'; // unique look during pure upload phase
+                    stepClass = 'active continuous-pulse';
                   } else if (currentStepIdx < step) {
                     stepClass = 'done';
                   } else if (currentStepIdx === step) {
@@ -144,14 +145,18 @@ const Analyze = ({ onBackToHome }) => {
                   }
 
                   return (
-                    <div key={i} className={`step ${stepClass}`}>
+                    <div 
+                      key={i} 
+                      className={`step-card ${stepClass}`}
+                      style={{ '--step-index': i }}
+                    >
                       <div className="step-dot">
                         {currentStepIdx < step ? '✓' : currentStepIdx}
                       </div>
-                      <div>
+                      <div className="step-text-block">
                         <div className="step-label">{label}</div>
                         <div className="step-sub">
-                          {['Extracting text and structure', 'Identifying legally significant language', 'Evaluating each clause for exposure', 'Assembling recommendations and red flags'][i]}
+                          {['Extracting raw text architecture', 'Identifying legally significant language constructs', 'Evaluating risk exposure vectors', 'Assembling executive recommendations and red flags'][i]}
                         </div>
                       </div>
                     </div>
@@ -161,7 +166,7 @@ const Analyze = ({ onBackToHome }) => {
             </div>
           </div>
         ) : (
-          /* Main Interactive Form View */
+          /* Main Form Interactive Panel View */
           <>
             <div className="hero">
               <h1>Know what you're <span>signing</span> before you sign</h1>
