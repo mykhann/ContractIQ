@@ -17,12 +17,19 @@ const Analyze = ({ onBackToHome }) => {
   
   const { loading, error, step, report, gdocUrl, analyze, reset } = useAnalysis();
 
-  // Health check (matches HTML version)
+  // Health check
   useEffect(() => {
     checkHealthStatus();
     const interval = setInterval(checkHealthStatus, 15000);
     return () => clearInterval(interval);
   }, [apiUrl]);
+
+  // Smooth scroll to top when an error occurs
+  useEffect(() => {
+    if (error) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [error]);
 
   const checkHealthStatus = async () => {
     try {
@@ -50,6 +57,7 @@ const Analyze = ({ onBackToHome }) => {
     },
     maxSize: 10485760,
     multiple: false,
+    disabled: loading,
   });
 
   const handleSubmit = async (e) => {
@@ -66,7 +74,6 @@ const Analyze = ({ onBackToHome }) => {
       party_perspective: perspective,
     };
 
-    // Pass the URLs and n8n flag to the hook
     await analyze(formData, { 
       useN8N: useN8N && n8nUrl.length > 0,
       n8nUrl: n8nUrl
@@ -85,26 +92,16 @@ const Analyze = ({ onBackToHome }) => {
     <div className="analyze-container">
       <div className="page-inner">
         {/* Back Button */}
-        <button className="btn-back-home" onClick={onBackToHome}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M15 8H1M1 8L8 15M1 8L8 1"/>
-          </svg>
-          Back to Home
-        </button>
+        {!loading && (
+          <button className="btn-back-home" onClick={onBackToHome}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 8H1M1 8L8 15M1 8L8 1"/>
+            </svg>
+            Back to Home
+          </button>
+        )}
 
-    
-
-        <div className="hero">
-          <h1>Know what you're <span>signing</span> before you sign</h1>
-          <p>Upload any contract and get clause-level risk scores, red flags, and negotiation tactics in under a minute.</p>
-        </div>
-
-        {/* Route badge (matches HTML) */}
-        <div className={`route-badge ${useN8N && n8nUrl ? 'via-n8n' : ''}`}>
-          {useN8N && n8nUrl ? '🔄 Routing via n8n' : '⚡ Direct API'}
-          {!useN8N && ' (no n8n)'}
-        </div>
-
+        {/* Error Display */}
         {error && (
           <div className="error-box">
             <strong>⚠️ Analysis failed</strong>
@@ -113,90 +110,135 @@ const Analyze = ({ onBackToHome }) => {
           </div>
         )}
 
-        {gdocUrl && (
-          <div className="gdoc-banner">
-            📄 Full report saved to Google Docs — <a href={gdocUrl} target="_blank" rel="noopener noreferrer">open document</a>
-          </div>
-        )}
+        {/* Immersive Loading Screen Alternative */}
+        {loading ? (
+          <div className="loading-screen-container">
+            <div className="loading-pulse-glow"></div>
+            <div className="loader-header">
+              <div className="loading-spinner-lux"></div>
+              <h2>
+                {step === 0 ? 'Uploading document...' : 'Analyzing your contract...'}
+              </h2>
+              <p>
+                {step === 0 
+                  ? 'Securely transmitting data payload. Please do not close this window.' 
+                  : 'Running risk engine assertions against compliance models.'
+                }
+              </p>
+            </div>
 
-        {step > 0 && (
-          <div className="progress-panel">
-            <div className="progress-title">Analyzing your contract…</div>
-            <div className="steps">
-              {['Parsing document', 'Extracting clauses', 'Scoring risk', 'Building report'].map((label, i) => (
-                <div key={i} className={`step ${i + 1 < step ? 'done' : i + 1 === step ? 'active' : ''}`}>
-                  <div className="step-dot">{i + 1}</div>
-                  <div>
-                    <div className="step-label">{label}</div>
-                    <div className="step-sub">{['Extracting text and structure', 'Identifying legally significant language', 'Evaluating each clause for exposure', 'Assembling recommendations and red flags'][i]}</div>
-                  </div>
+            <div className="progress-panel embedded">
+              <div className="progress-title">
+                {step === 0 ? 'Status: Preparing Pipeline' : `Status: Step ${step} of 4`}
+              </div>
+              <div className="steps">
+                {['Parsing document', 'Extracting clauses', 'Scoring risk', 'Building report'].map((label, i) => {
+                  const currentStepIdx = i + 1;
+                  let stepClass = '';
+                  if (step === 0 && i === 0) {
+                    stepClass = 'active continuous-pulse'; // unique look during pure upload phase
+                  } else if (currentStepIdx < step) {
+                    stepClass = 'done';
+                  } else if (currentStepIdx === step) {
+                    stepClass = 'active';
+                  }
+
+                  return (
+                    <div key={i} className={`step ${stepClass}`}>
+                      <div className="step-dot">
+                        {currentStepIdx < step ? '✓' : currentStepIdx}
+                      </div>
+                      <div>
+                        <div className="step-label">{label}</div>
+                        <div className="step-sub">
+                          {['Extracting text and structure', 'Identifying legally significant language', 'Evaluating each clause for exposure', 'Assembling recommendations and red flags'][i]}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* Main Interactive Form View */
+          <>
+            <div className="hero">
+              <h1>Know what you're <span>signing</span> before you sign</h1>
+              <p>Upload any contract and get clause-level risk scores, red flags, and negotiation tactics in under a minute.</p>
+            </div>
+
+            <div className={`route-badge ${useN8N && n8nUrl ? 'via-n8n' : ''}`}>
+              {useN8N && n8nUrl ? '🔄 Routing via n8n' : '⚡ Direct API'}
+              {!useN8N && ' (no n8n)'}
+            </div>
+
+            {gdocUrl && (
+              <div className="gdoc-banner">
+                📄 Full report saved to Google Docs — <a href={gdocUrl} target="_blank" rel="noopener noreferrer">open document</a>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit}>
+              <div {...getRootProps()} className={`drop-zone ${isDragActive ? 'drag-over' : ''}`}>
+                <input {...getInputProps()} />
+                <div className="drop-icon">📄</div>
+                <h3>Drop your contract here</h3>
+                <p>PDF, DOCX, or TXT · up to 10 MB</p>
+              </div>
+
+              {file && (
+                <div className="file-chip">
+                  <span>📎</span>
+                  <span>{file.name} ({(file.size / 1024).toFixed(1)} KB)</span>
+                  <span className="file-chip-remove" onClick={clearFile}>✕</span>
                 </div>
-              ))}
-            </div>
-          </div>
+              )}
+
+              <div className="divider">or paste contract text</div>
+
+              <div className="form-group">
+                <label className="form-label">Contract text</label>
+                <textarea
+                  className="form-textarea"
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  placeholder="Paste the full contract text here…"
+                />
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Contract name</label>
+                  <input
+                    className="form-input"
+                    value={contractName}
+                    onChange={(e) => setContractName(e.target.value)}
+                    placeholder="e.g. SaaS Service Agreement"
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Your role</label>
+                  <select className="form-select" value={perspective} onChange={(e) => setPerspective(e.target.value)}>
+                    <option value="reviewing party">Reviewing Party</option>
+                    <option value="client">Client</option>
+                    <option value="vendor">Vendor / Service Provider</option>
+                    <option value="employee">Employee</option>
+                    <option value="employer">Employer</option>
+                    <option value="landlord">Landlord</option>
+                    <option value="tenant">Tenant</option>
+                    <option value="investor">Investor</option>
+                    <option value="startup founder">Startup Founder</option>
+                  </select>
+                </div>
+              </div>
+
+              <button type="submit" className="btn-primary">
+                <span>⚡ Analyze Contract</span>
+              </button>
+            </form>
+          </>
         )}
-
-        <form onSubmit={handleSubmit}>
-          <div {...getRootProps()} className={`drop-zone ${isDragActive ? 'drag-over' : ''}`}>
-            <input {...getInputProps()} />
-            <div className="drop-icon">📄</div>
-            <h3>Drop your contract here</h3>
-            <p>PDF, DOCX, or TXT · up to 10 MB</p>
-          </div>
-
-          {file && (
-            <div className="file-chip">
-              <span>📎</span>
-              <span>{file.name} ({(file.size / 1024).toFixed(1)} KB)</span>
-              <span className="file-chip-remove" onClick={clearFile}>✕</span>
-            </div>
-          )}
-
-          <div className="divider">or paste contract text</div>
-
-          <div className="form-group">
-            <label className="form-label">Contract text</label>
-            <textarea
-              className="form-textarea"
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder="Paste the full contract text here…"
-              disabled={loading}
-            />
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label">Contract name</label>
-              <input
-                className="form-input"
-                value={contractName}
-                onChange={(e) => setContractName(e.target.value)}
-                placeholder="e.g. SaaS Service Agreement"
-                disabled={loading}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Your role</label>
-              <select className="form-select" value={perspective} onChange={(e) => setPerspective(e.target.value)} disabled={loading}>
-                <option value="reviewing party">Reviewing Party</option>
-                <option value="client">Client</option>
-                <option value="vendor">Vendor / Service Provider</option>
-                <option value="employee">Employee</option>
-                <option value="employer">Employer</option>
-                <option value="landlord">Landlord</option>
-                <option value="tenant">Tenant</option>
-                <option value="investor">Investor</option>
-                <option value="startup founder">Startup Founder</option>
-              </select>
-            </div>
-          </div>
-
-          <button type="submit" className="btn-primary" disabled={loading}>
-            <div className={`spinner ${loading ? 'active' : ''}`}></div>
-            <span>{loading ? 'Analyzing…' : '⚡ Analyze Contract'}</span>
-          </button>
-        </form>
       </div>
     </div>
   );
